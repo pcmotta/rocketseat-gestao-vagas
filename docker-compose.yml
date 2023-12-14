@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  mysql:
+    container_name: gestao_vagas_db
+    image: mysql:8.0.31
+    ports:
+      - 3306:3306
+    environment:
+      MYSQL_ROOT_PASSWORD: admin
+      MYSQL_DATABASE: gestao_vagas
+
+  prometheus:
+    container_name: gestao_vagas_prometheus
+    image: prom/prometheus:latest
+    volumes:
+      - ./config/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    networks:
+      - gv-network
+    ports:
+      - "9090:9090"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  grafana:
+    container_name: gestao_vagas_grafana
+    image: grafana/grafana:latest
+    ports:
+      - "3000:3000"
+    networks:
+      - gv-network
+    volumes:
+      - grafana_data:/var/lib/grafana
+
+networks:
+  gv-network:
+    driver: bridge
+
+volumes:
+  prometheus_data:
+  grafana_data:
